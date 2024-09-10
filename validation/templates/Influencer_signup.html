@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Influencer Registration</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">INFLULINK</a>
+</nav>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Influencer Registration</h3>
+                </div>
+                <div class="card-body">
+                    <form action="/influencer_register" method="post">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" name="username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Niche/Category:</label>
+                            <input type="text" id="category" name="category" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reach">Reach:</label>
+                            <input type="number" id="reach" name="reach" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="followers">Followers:</label>
+                            <input type="number" id="followers" name="followers" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg mx-2">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Campaigns</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Influencer Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/influprofile">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findinflu', influencer_id=influencer.id) }}">Find</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h1 class="h2">Active Campaigns for {{ influencer.username }}</h1>
+
+                <!-- Filter Bar -->
+                <form method="get" class="mb-4">
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                            <input type="text" name="filter_name" class="form-control mb-2" placeholder="Filter by campaign name" value="{{ filter_name }}">
+                        </div>
+                        <div class="col-auto">
+                            <select name="filter_category" class="form-control mb-2">
+                                <option value="">Select Category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category }}" {% if category == filter_category %}selected{% endif %}>{{ category }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary mb-2">Filter</button>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('findinflu', influencer_id=influencer.id) }}" class="btn btn-secondary mb-2">See All</a>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Campaigns Table -->
+                <div class="container mt-4">
+                    {% if campaigns %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Campaign Name</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Sponsor</th>
+                                    <th scope="col">Flag Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in campaigns %}
+                                    <tr>
+                                        <td>{{ item.campaign.campaign_name }}</td>
+                                        <td>{{ item.campaign.campaign_des }}</td>
+                                        <td>{{ item.campaign.campaign_category }}</td>
+                                        <td>{{ item.sponsor_username }}</td>
+                                        <td>
+                                            {% if item.campaign.flag_status == 'Flagged' %}
+                                                <span class="badge badge-warning">Flagged</span>
+                                            {% else %}
+                                                <span class="badge badge-success">Not Flagged</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <!-- View details modal button -->
+                                            <button class="btn btn-primary" data-toggle="modal" data-target="#viewCampaignModal{{ item.campaign.id }}">View</button>
+                                            <!-- Request ad link -->
+                                            <a href="{{ url_for('request_ad', campaign_id=item.campaign.id, influencer_id=influencer.id, sponsor_id=item.campaign.sponsor_id) }}" class="btn btn-success">Request</a>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Modal for viewing campaign details -->
+                                    <div class="modal fade" id="viewCampaignModal{{ item.campaign.id }}" tabindex="-1" aria-labelledby="viewCampaignModalLabel{{ item.campaign.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="viewCampaignModalLabel{{ item.campaign.id }}">Campaign Details: {{ item.campaign.campaign_name }}</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>Description:</strong> {{ item.campaign.campaign_des }}</p>
+                                                    <p><strong>Status:</strong> {{ item.campaign.campaign_status }}</p>
+                                                    <p><strong>Category:</strong> {{ item.campaign.campaign_category }}</p>
+                                                    <p><strong>Start Date:</strong> {{ item.campaign.campaign_sdate }}</p>
+                                                    <p><strong>End Date:</strong> {{ item.campaign.campaign_edate }}</p>
+                                                    <p><strong>Sponsor:</strong> {{ item.sponsor_username }}</p>
+                                                    <p><strong>Flag Status:</strong> 
+                                                        {% if item.campaign.flag_status == 'Flagged' %}
+                                                            <span class="badge badge-warning">Flagged</span>
+                                                        {% else %}
+                                                            <span class="badge badge-success">Not Flagged</span>
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No public campaigns available at the moment.</p>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

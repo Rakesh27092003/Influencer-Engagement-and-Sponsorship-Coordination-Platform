@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer{{ influencer.name }}'s Profile</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Influencer Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('influprofile', username=influencer.username) }}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('requests_page', username=influencer.username) }}">Requests</a>
+                        </li>
+                       
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findinflu', influencer_id=influencer.id) }}">Find</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{  url_for('influencer_statistics', username=influencer.username) }}">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">{{ influencer.name }}'s Profile</h1>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th>Username:</th>
+                                    <td>{{ influencer.username }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Name:</th>
+                                    <td>{{ influencer.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Category:</th>
+                                    <td>{{ influencer.category }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Reach:</th>
+                                    <td>{{ influencer.reach }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Followers:</th>
+                                    <td>{{ influencer.followers }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Flag Status:</th>
+                                    <td>{{ influencer.flag_status }}</td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Edit Button -->
+                            <button class="btn btn-warning mt-3" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url_for('update_profile', influencer_id=influencer.id) }}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ influencer.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category:</label>
+                            <input type="text" class="form-control" id="category" name="category" value="{{ influencer.category }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="reach">Reach:</label>
+                            <input type="number" class="form-control" id="reach" name="reach" value="{{ influencer.reach }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="followers">Followers:</label>
+                            <input type="number" class="form-control" id="followers" name="followers" value="{{ influencer.followers }}">
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

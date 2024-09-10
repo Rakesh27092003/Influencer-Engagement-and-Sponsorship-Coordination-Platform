@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Statistics - {{ influencer.username }}</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Influencer Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/influprofile">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('requests_page', username=influencer.username) }}">Requests</a>
+                        </li>
+                        
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findinflu', influencer_id=influencer.id) }}">Find</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('influencer_statistics', username=influencer.username) }}">
+                                Statistics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1>Statistics for {{ influencer.name }}</h1>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="adRequestChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="adRequestByInfluencerChart"></canvas>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const data = {{ data|tojson }};
+                        
+                        // AdRequest Chart
+                        const ctx1 = document.getElementById('adRequestChart').getContext('2d');
+                        new Chart(ctx1, {
+                            type: 'pie',
+                            data: {
+                                labels: data.ad_request_labels,
+                                datasets: [{
+                                    label: 'Ad Requests by Status',
+                                    data: data.ad_request_data,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                                            }
+                                        }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Ad Requests Recieved',
+                                        font: {
+                                            size: 18,
+                                            weight: 'bold'
+                                        },
+                                        padding: {
+                                            top: 10,
+                                            bottom: 10
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // AdRequestByInfluencer Chart
+                        const ctx2 = document.getElementById('adRequestByInfluencerChart').getContext('2d');
+                        new Chart(ctx2, {
+                            type: 'pie',
+                            data: {
+                                labels: data.ad_request_by_influencer_labels,
+                                datasets: [{
+                                    label: 'Ad Requests by Influencer by Status',
+                                    data: data.ad_request_by_influencer_data,
+                                    backgroundColor: [
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                                            }
+                                        }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Ad Requests sent ',
+                                        font: {
+                                            size: 18,
+                                            weight: 'bold'
+                                        },
+                                        padding: {
+                                            top: 10,
+                                            bottom: 10
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

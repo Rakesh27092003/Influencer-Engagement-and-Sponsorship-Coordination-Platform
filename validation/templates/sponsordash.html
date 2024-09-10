@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-show {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Sponsor Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/campaign/{{ sponsor.username }}">Campaign</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findsponsor', username=sponsor.username) }}">Find</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('sponsor_statistics', username=sponsor.username) }}">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h1>Welcome, {{ sponsor.username }}</h1>
+
+                <!-- Ongoing Campaigns -->
+                <h2>Ongoing Campaigns:</h2>
+                {% if campaigns %}
+                    {% for item in campaigns %}
+                        <div class="card mb-3">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">
+                                        {{ item.campaign.campaign_name }}
+                                        {% if item.campaign.flag_status %}
+                                            <span class="badge badge-warning">{{ item.campaign.flag_status }}</span>
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                                <div>
+                                    <a href="#modal{{ item.campaign.id }}" class="btn btn-primary" onclick="document.getElementById('modal{{ item.campaign.id }}').classList.add('modal-show')">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal -->
+                        <div id="modal{{ item.campaign.id }}" class="modal">
+                            <div class="modal-content">
+                                <span class="close" onclick="document.getElementById('modal{{ item.campaign.id }}').classList.remove('modal-show')">&times;</span>
+                                <h2>{{ item.campaign.campaign_name }}</h2>
+                                <p><strong>Description:</strong> {{ item.campaign.campaign_des }}</p>
+                                <p><strong>Category:</strong> {{ item.campaign.campaign_category }}</p>
+                                <p><strong>Start Date:</strong> {{ item.campaign.campaign_sdate }}</p>
+                                <p><strong>End Date:</strong> {{ item.campaign.campaign_edate }}</p>
+
+                                <!-- Ad Requests Details -->
+                                <h3>Ad Requests sent:</h3>
+                                {% if item.ad_requests %}
+                                    <ul>
+                                        {% for ad_request in item.ad_requests %}
+                                            <li>
+                                                <p><strong>Influencer:</strong> {{ ad_request.influencer.name }} ({{ ad_request.influencer.username }})</p>
+                                                <p><strong>Message:</strong> {{ ad_request.message }}</p>
+                                                <p><strong>Payment:</strong> {{ ad_request.payment }}</p>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>No ad requests found.</p>
+                                {% endif %}
+
+                                <!-- Ad Requests by Influencers -->
+                                <h3>Ad Requests Received:</h3>
+                                {% if item.ad_requests_by_influencer %}
+                                    <ul>
+                                        {% for ad_request in item.ad_requests_by_influencer %}
+                                            <li>
+                                                <p><strong>Influencer:</strong> {{ ad_request.influencer.name }} ({{ ad_request.influencer.username }})</p>
+                                                <p><strong>Message:</strong> {{ ad_request.message }}</p>
+                                                <p><strong>Payment:</strong> {{ ad_request.payment }}</p>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>No ad requests found.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No ongoing campaigns at the moment.</p>
+                {% endif %}
+
+                <!-- Pending Requests from Influencers -->
+                <h2>Pending Requests from Influencers:</h2>
+                {% if influencer_requests %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Influencer</th>
+                                <th scope="col">Campaign</th>
+                                <th scope="col">Flag Status</th>
+                                <th scope="col">Message</th>
+                                <th scope="col">Payment</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in influencer_requests %}
+                                <tr>
+                                    <td>{{ request.influencer.name }} ({{ request.influencer.username }})</td>
+                                    <td>{{ request.campaign.campaign_name }}</td>
+                                    <td>
+                                        {% if request.campaign.flag_status %}
+                                            {{ request.campaign.flag_status }}
+                                        {% else %}
+                                            <em>None</em>
+                                        {% endif %}
+                                    </td>
+                                    <td><a href="#messageModal{{ request.id }}" class="btn btn-info" onclick="document.getElementById('messageModal{{ request.id }}').classList.add('modal-show')">View Message</a></td>
+                                    <td>{{ request.payment }}</td>
+                                    <td>
+                                        <a href="{{ url_for('update_request_status', request_id=request.id, status='Accepted') }}" class="btn btn-success">Accept</a>
+                                        <a href="{{ url_for('update_request_status', request_id=request.id, status='Rejected') }}" class="btn btn-danger">Reject</a>
+                                    </td>
+                                </tr>
+                                <!-- Message Modal -->
+                                <div id="messageModal{{ request.id }}" class="modal">
+                                    <div class="modal-content">
+                                        <span class="close" onclick="document.getElementById('messageModal{{ request.id }}').classList.remove('modal-show')">&times;</span>
+                                        <h4>Message from {{ request.influencer.name }}:</h4>
+                                        <p>{{ request.message }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No pending requests from influencers at the moment.</p>
+                {% endif %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

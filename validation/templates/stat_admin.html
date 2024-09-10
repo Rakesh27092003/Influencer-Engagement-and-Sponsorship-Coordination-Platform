@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Statistics</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Make the canvas fit the screen width */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin-bottom: 40px; /* Space between charts */
+        }
+        #myPieChart, #campaignPieChart {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Admin Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admindash">Info</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findadmin_influencer">Find Influencers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findadmin_sponsor">Find Sponsors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findadmin_campaign">Find Campaigns</a>
+                        </li>
+                        <!-- Add more navigation items here if needed -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/stat_admin">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <h1>Admin Statistics</h1>
+                
+                <!-- Pie chart for influencers and sponsors -->
+                <div class="chart-container">
+                    <canvas id="myPieChart"></canvas>
+                </div>
+                
+                <!-- Pie chart for campaigns status -->
+                <div class="chart-container">
+                    <canvas id="campaignPieChart"></canvas>
+                </div>
+
+                <script>
+                    async function fetchData(endpoint) {
+                        const response = await fetch(endpoint);
+                        return await response.json();
+                    }
+
+                    async function renderCharts() {
+                        const [influencerData, campaignData] = await Promise.all([
+                            fetchData('/statistics_data'),       // Endpoint for influencer/sponsor data
+                            fetchData('/campaign_statistics_data') // Endpoint for campaign data
+                        ]);
+                        
+                        // Influencer and Sponsor Pie Chart
+                        const ctx1 = document.getElementById('myPieChart').getContext('2d');
+                        new Chart(ctx1, {
+                            type: 'pie',
+                            data: {
+                                labels: influencerData.labels,
+                                datasets: [{
+                                    label: 'Count of Influencers and Sponsors',
+                                    data: influencerData.data,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        // Campaign Status Pie Chart
+                        const ctx2 = document.getElementById('campaignPieChart').getContext('2d');
+                        new Chart(ctx2, {
+                            type: 'pie',
+                            data: {
+                                labels: campaignData.labels,
+                                datasets: [{
+                                    label: 'Campaign Status',
+                                    data: campaignData.data,
+                                    backgroundColor: [
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(75, 192, 192, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    window.onload = renderCharts;
+                </script>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

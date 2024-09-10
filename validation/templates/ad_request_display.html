@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Ad Request</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .add-campaign-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Sponsor Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="/campaign/{{ username }}">Campaign</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findsponsor', username=username) }}">
+                                Find
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findsponsor', username=username) }}">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Ad Request</h1>
+                </div>
+
+                <h2>Ad Requests for Campaign: {{ campaign_name }}</h2>
+                {% if ad_requests %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Influencer</th>
+                            <th>Payment</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ad_request in ad_requests %}
+                        <tr>
+                            <td>{{ ad_request.influencer_name }}</td>
+                            <td>${{ ad_request.payment }}</td>
+                            <td>{{ ad_request.message }}</td>
+                            <td>{{ ad_request.status }}</td>
+                            <td>
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#editModal{{ ad_request.id }}">Edit</button>
+                                <form action="{{ url_for('delete_ad_request', ad_request_id=ad_request.id) }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal{{ ad_request.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ ad_request.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel{{ ad_request.id }}">Edit Ad Request</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="{{ url_for('edit_ad_request', ad_request_id=ad_request.id) }}" method="post">
+                                            <div class="form-group">
+                                                <label for="message">Personal Message</label>
+                                                <textarea class="form-control" id="message" name="message" rows="3">{{ ad_request.message }}</textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="payment">Payment</label>
+                                                <input type="number" class="form-control" id="payment" name="payment" value="{{ ad_request.payment }}" required>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No ad requests found for this campaign.</p>
+                {% endif %}
+            </main>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

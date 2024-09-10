@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Campaigns</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Admin Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admindash">Info</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findadmin_influencer">Find Influencers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findadmin_sponsor">Find Sponsors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findadmin_campaign">Find Campaigns</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/stat_admin">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Find Campaigns</h1>
+                </div>
+
+                <div class="container mt-5">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <form action="/findadmin_campaign" method="POST">
+                                <div class="form-group">
+                                    <label for="query">Filter by Name:</label>
+                                    <input type="text" id="query" name="query" class="form-control" placeholder="Enter campaign name" value="{{ query }}">
+                                </div>
+                                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+                                <a href="/findadmin_campaign" class="btn btn-outline-secondary">Reset</a>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>List of Campaigns</h4>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th>Category</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for campaign in campaigns %}
+                                        <tr>
+                                            <td>{{ campaign.campaign_name }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#campaignModal{{ campaign.id }}">View</button>
+                                            </td>
+                                            <td>{{ campaign.campaign_status }}</td>
+                                            <td>{{ campaign.campaign_category }}</td>
+                                            <td>{{ campaign.campaign_sdate }}</td>
+                                            <td>{{ campaign.campaign_edate }}</td>
+                                            <td>
+                                                {% if campaign.flag_status == 'Flagged' %}
+                                                    <form action="/unflag_campaign/{{ campaign.id }}" method="post" style="display:inline;">
+                                                        <button type="submit" class="btn btn-warning btn-sm">Unflag</button>
+                                                    </form>
+                                                {% else %}
+                                                    <form action="/flag_campaign/{{ campaign.id }}" method="post" style="display:inline;">
+                                                        <button type="submit" class="btn btn-danger btn-sm">Flag</button>
+                                                    </form>
+                                                {% endif %}
+                                                <form action="/deleteadmin_campaign/{{ campaign.id }}" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Template -->
+    {% for campaign in campaigns %}
+        <div class="modal fade" id="campaignModal{{ campaign.id }}" tabindex="-1" role="dialog" aria-labelledby="campaignModalLabel{{ campaign.id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="campaignModalLabel{{ campaign.id }}">{{ campaign.campaign_name }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Description:</strong></p>
+                        <p>{{ campaign.campaign_des }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</body>
+</html>

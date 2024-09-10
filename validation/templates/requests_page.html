@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Ad Requests</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Influencer Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('influprofile', username=influencer.username) }}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('requests_page', username=influencer.username) }}">Requests</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findinflu', influencer_id=influencer.id) }}">Find</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('influencer_statistics', username=influencer.username) }}">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Ad Requests for {{ influencer.name }}</h1>
+                </div>
+                <div class="container">
+                    {% if ad_requests %}
+                        <div class="list-group">
+                            {% for ad_request in ad_requests %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5>{{ ad_request.campaign.campaign_name }} 
+                                            <span class="badge badge-info">{{ ad_request.status }}</span>
+                                        </h5>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-primary mr-2" data-toggle="modal" data-target="#viewAdRequestModal{{ ad_request.id }}">View</button>
+                                        <form action="{{ url_for('delete_request', ad_request_id=ad_request.id) }}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Modal for each ad request -->
+                                <div class="modal fade" id="viewAdRequestModal{{ ad_request.id }}" tabindex="-1" aria-labelledby="viewAdRequestModalLabel{{ ad_request.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="viewAdRequestModalLabel{{ ad_request.id }}">Ad Request Details: {{ ad_request.campaign.campaign_name }}</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h5>Campaign Details</h5>
+                                                <p><strong>Description:</strong> {{ ad_request.campaign.campaign_des }}</p>
+                                                <p><strong>Status:</strong> {{ ad_request.campaign.campaign_status }}</p>
+                                                <p><strong>Category:</strong> {{ ad_request.campaign.campaign_category }}</p>
+                                                <p><strong>Start Date:</strong> {{ ad_request.campaign.campaign_sdate }}</p>
+                                                <p><strong>End Date:</strong> {{ ad_request.campaign.campaign_edate }}</p>
+                                                {% if ad_request.campaign.flag_status == 'Flagged' %}
+                                                    <p><strong>Flag Status:</strong> <span class="badge badge-warning">Flagged</span></p>
+                                                {% endif %}
+                                                <hr>
+                                                <h5>Ad Request Details</h5>
+                                                <p><strong>Message:</strong> {{ ad_request.message }}</p>
+                                                <p><strong>Payment:</strong> ${{ ad_request.payment }}</p>
+                                                <p><strong>Status:</strong> {{ ad_request.status }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No ad requests found.</p>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

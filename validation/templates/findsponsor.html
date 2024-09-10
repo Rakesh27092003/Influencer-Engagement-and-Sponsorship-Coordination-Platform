@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Find</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .btn-send-request {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .btn-send-request.disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .btn-view {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .btn-view:hover {
+            background-color: #218838;
+        }
+        .text-warning {
+            color: #856404;
+        }
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Checkbox hack for modal */
+        .modal-checkbox {
+            display: none;
+        }
+        .modal-checkbox:checked + .modal {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <a href="/" class="text-muted">INFLULINK</a>
+                    </h4>
+                    <h5 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Sponsor Dashboard</span>
+                    </h5>
+                    <ul class="nav flex-column">
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('campaigns_page', username=sponsor.username) }}">Campaign</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('findsponsor', username=sponsor.username) }}">
+                                Find
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('sponsor_statistics', username=sponsor.username) }}">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Find Influencer</h1>
+                </div>
+                <div class="container mt-5">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <form action="{{ url_for('sponsor_find', username=sponsor.username) }}" method="POST">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="name">Search by Name:</label>
+                                        <input type="text" id="name" name="name" class="form-control" placeholder="Enter name" value="{{ name }}">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="niche">Filter by Niche/Category:</label>
+                                        <select id="niche" name="niche" class="form-control">
+                                            <option value="">Select a niche</option>
+                                            {% for unique_niche in unique_niches %}
+                                                <option value="{{ unique_niche }}" {% if unique_niche == niche %}selected{% endif %}>{{ unique_niche }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="min_reach">Minimum Reach:</label>
+                                        <input type="number" id="min_reach" name="min_reach" class="form-control" placeholder="Enter minimum reach" value="{{ min_reach }}">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="min_followers">Minimum Followers:</label>
+                                        <input type="number" id="min_followers" name="min_followers" class="form-control" placeholder="Enter minimum followers" value="{{ min_followers }}">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-outline-secondary">Filter</button>
+                                <button type="submit" name="see_all" class="btn btn-outline-secondary">See All</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Sponsor: {{ sponsor.username }}</h4>
+                        </div>
+                    </div>
+                    
+                    {% if search_results %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Search Results:</h4>
+                            <ul class="list-group">
+                                {% for influencer in search_results %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5>{{ influencer.name }}
+                                                {% if influencer.flag_status == 'Flagged' %}
+                                                    <span class="badge badge-danger ml-2">Flagged</span>
+                                                {% endif %}
+                                            </h5>
+                                        </div>
+                                        <div>
+                                            <form action="{{ url_for('ad_request', username=sponsor.username) }}" method="POST" style="display: inline;">
+                                                <input type="hidden" name="influencer_id" value="{{ influencer.id }}">
+                                                <button type="submit" class="btn-send-request" {% if influencer.flag_status == 'Flagged' %}disabled{% endif %}>Send Request</button>
+                                            </form>
+                                            <label for="modal-checkbox-{{ influencer.id }}" class="btn-view">View</label>
+                                            <input type="checkbox" id="modal-checkbox-{{ influencer.id }}" class="modal-checkbox">
+                                            <div class="modal">
+                                                <div class="modal-content">
+                                                    <label for="modal-checkbox-{{ influencer.id }}" class="close">&times;</label>
+                                                    <h2>{{ influencer.name }}</h2>
+                                                    <p>Username: {{ influencer.username }}</p>
+                                                    <p>Category: {{ influencer.category }}</p>
+                                                    <p>Reach: {{ influencer.reach }}</p>
+                                                    <p>Followers: {{ influencer.followers }}</p>
+                                                    {% if influencer.flag_status == 'Flagged' %}
+                                                        <p class="text-warning">This influencer is flagged and cannot be contacted.</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    {% endif %}
+
+                    <!-- Flash messages section -->
+                    
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
